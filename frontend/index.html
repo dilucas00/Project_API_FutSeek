@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FutSeek - estatisticas de jogadores</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container__main">
+      <div class="container__card">
+        <div class="header__card">
+          <h1>FutSeek</h1>
+          <p>Descubra estatísticas detalhadas dos seus jogadores favoritos</p>
+        </div>
+        <div class="search__input">
+          <input
+            type="text"
+            id="nomeJogador"
+            placeholder="Digite o nome do jogador..."
+          />
+          <button onclick="pesquisarJogador()" class="search__button">
+            Buscar
+          </button>
+        </div>
+        <div class="player__stats">
+          <div class="container__player">
+            <div class="player__info">
+              <h2 id="playerName"></h2>
+              <p id="playerClub"></p>
+              <p id="playerAge"></p>
+            </div>
+            <div class="container__img">
+              <img id="player__img" src="" alt="" />
+            </div>
+          </div>
+          <div class="grid__info__player">
+            <div class="stat__card">
+              <div class="stat__value" id="goals"></div>
+              <div class="stat__label">Gols na carreira</div>
+            </div>
+            <div class="stat__card">
+              <div class="stat__value" id="matches"></div>
+              <div class="stat__label">Partidas</div>
+            </div>
+            <div class="stat__card">
+              <div class="stat__value" id="assists"></div>
+              <div class="stat__label">Assistências na carreira</div>
+            </div>
+            <div class="stat__card">
+              <div class="stat__value" id="titles"></div>
+              <div class="stat__label">Títulos na carreira</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let jogadores = [];
+
+      async function carregarDados() {
+        try {
+          const resposta = await fetch("http://localhost:3000/api/jogadores");
+
+          if (!resposta.ok) {
+            throw new Error("Erro ao buscar dados");
+          }
+
+          jogadores = await resposta.json();
+
+          const lista = document.getElementById("lista");
+          lista.innerHTML = "";
+
+          jogadores.forEach((elemento) => {
+            const li = document.createElement("li");
+            li.textContent = `${elemento.nome} : ${elemento.partidas}`;
+            lista.appendChild(li);
+          });
+        } catch (erro) {
+          console.log("Erro ao carregar os dados", erro);
+        }
+      }
+
+      function pesquisarJogador() {
+        const nomePesquisa = document
+          .getElementById("nomeJogador")
+          .value.toLowerCase();
+        const jogadorEncontrado = jogadores.find((jogador) =>
+          jogador.nome.toLowerCase().includes(nomePesquisa)
+        );
+
+        if (jogadorEncontrado) {
+          document.getElementById("playerName").textContent =
+            jogadorEncontrado.nome;
+          document.getElementById("playerClub").textContent =
+            jogadorEncontrado.clube;
+          document.getElementById(
+            "playerAge"
+          ).textContent = `${jogadorEncontrado.idade} anos`;
+          document.getElementById("goals").textContent = jogadorEncontrado.gols;
+          document.getElementById("matches").textContent =
+            jogadorEncontrado.partidas;
+          document.getElementById("assists").textContent =
+            jogadorEncontrado.assistencias;
+          document.getElementById("titles").textContent =
+            jogadorEncontrado.titulos;
+          document.getElementById("player__img").src = jogadorEncontrado.imagem;
+        } else {
+          alert("Jogador não encontrado!");
+        }
+      }
+      carregarDados();
+    </script>
+  </body>
+</html>
